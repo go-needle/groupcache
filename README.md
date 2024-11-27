@@ -1,6 +1,27 @@
-# groupcache
-Distributed caching library based on protobuf, go-needle-btcp, go-needle-cache
+<!-- markdownlint-disable MD033 MD041 -->
+<div align="center">
 
+# 🪡groupcache
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line MD036 -->
+Distributed caching library based on protobuf, go-needle-btcp, go-needle-cache
+<!-- prettier-ignore-end -->
+
+<img src="https://img.shields.io/badge/golang-1.21+-blue" alt="golang">
+</div>
+
+## introduction
+A distributed caching system based on groups. be based on 🪡bttcp With protobuf, it has ultra-high transmission fault tolerance performance. use 🪡cache The LRU algorithm manages cache and has a higher cache hit rate.
+
+## installing
+Select the version to install
+
+`go get github.com/go-needle/groupcache@version`
+
+If you have already get , you may need to update to the latest version
+
+`go get -u github.com/groupcache/groupcache`
 
 
 ### quickly start
