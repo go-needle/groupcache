@@ -3,6 +3,7 @@ package groupcache
 import (
 	"fmt"
 	"github.com/go-needle/cache"
+	"github.com/go-needle/groupcache/singleflight"
 	"log"
 	"sync"
 	"time"
@@ -27,6 +28,9 @@ type Group struct {
 	getter    Getter
 	mainCache cache.Cache
 	peers     PeerPicker
+	// use singleflight.Group to make sure that
+	// each key is only fetched once
+	loader *singleflight.Group
 }
 
 var (
@@ -45,6 +49,7 @@ func NewGroup(name string, cacheBytes int64, keySurvivalTime time.Duration, gett
 		name:      name,
 		getter:    getter,
 		mainCache: cache.NewLRU(cacheBytes, keySurvivalTime),
+		loader:    &singleflight.Group{},
 	}
 	groups[name] = g
 	return g
@@ -64,7 +69,6 @@ func (g *Group) Get(key string) (cache.ByteView, error) {
 	if key == "" {
 		return cache.NewByteView(nil), fmt.Errorf("key is required")
 	}
-
 	if v, ok := g.mainCache.Get(key); ok {
 		log.Println("[cache] hit")
 		return v, nil
@@ -85,16 +89,21 @@ func (g *Group) RegisterPeers(peers PeerPicker) {
 }
 
 func (g *Group) load(key string) (value []byte, err error) {
-	if g.peers != nil {
-		if peer, ok := g.peers.PickPeer(key); ok {
-			if value, err = g.getFromPeer(peer, key); err == nil {
-				return value, nil
+	// each key is only fetched once (either locally or remotely)
+	// regardless of the number of concurrent callers.
+	value, err = g.loader.Do(key, func() ([]byte, error) {
+		if g.peers != nil {
+			if peer, ok := g.peers.PickPeer(key); ok {
+				if value, err = g.getFromPeer(peer, key); err == nil {
+					return value, nil
+				}
+				log.Println("[GroupCache] Failed to get from peer", err)
 			}
-			log.Println("[GeeCache] Failed to get from peer", err)
 		}
-	}
 
-	return g.getLocally(key)
+		return g.getLocally(key)
+	})
+	return
 }
 
 func (g *Group) getFromPeer(peer PeerGetter, key string) ([]byte, error) {

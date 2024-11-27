@@ -1,3 +1,5 @@
+// protoc --go_out=. *.proto
+
 syntax = "proto3";
 
 option go_package = "groupcachepb/";
@@ -9,4 +11,6 @@ message Request {
 
 message Response {
   bytes value = 1;
+  int32 code = 2;
 }
+
