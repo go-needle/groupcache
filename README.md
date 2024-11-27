@@ -12,7 +12,7 @@ Distributed system of cache based on [protobuf](https://github.com/golang/protob
 </div>
 
 ## introduction
-A distributed caching system based on groups. be based on [🪡bttcp](https://github.com/go-needle/bttcp) and [protobuf](https://github.com/golang/protobuf), it has ultra-high transmission fault tolerance performance. Use the LRU algorithm manages cache and has a higher cache hit rate.
+A distributed caching system based on groups. It has ultra-high transmission fault tolerance performance and has a higher cache hit rate.
 
 ## installing
 Select the version to install
