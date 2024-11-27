@@ -50,6 +50,7 @@ func startAPIServer(apiAddr string, g *Group) {
 
 }
 
+// go mod tidy
 func TestGroupCache(t *testing.T) {
 	addrs := []string{"127.0.0.1:8001"}
 	g := createGroup()
