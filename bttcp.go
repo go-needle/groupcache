@@ -17,6 +17,7 @@ import (
 var (
 	defaultReplicas = 50
 	defaultHash     = crc32.ChecksumIEEE
+	defaultPoolSize = 128
 )
 
 // BttcpPicker implements PeerPicker for a pool of bttcp peers.
@@ -61,16 +62,23 @@ func (p *BttcpPicker) Set(peers ...string) {
 	p.peers.Add(peers...)
 	p.bttcpGetters = make(map[string]*bttcpGetter, len(peers))
 	for _, peer := range peers {
-		p.bttcpGetters[peer] = &bttcpGetter{baseURL: peer, client: bttcp.NewClient(peer, 1024, false)}
+		p.bttcpGetters[peer] = &bttcpGetter{baseURL: peer, client: bttcp.NewClient(peer, defaultPoolSize, false)}
 	}
 }
 
+// SetHashReplicas is to set defaultReplicas.
 func SetHashReplicas(replicas int) {
 	defaultReplicas = replicas
 }
 
+// SetHash is to set the function of defaultHash.
 func SetHash(fn consistenthash.Hash) {
 	defaultHash = fn
+}
+
+// SetPoolSize is to set defaultPoolSize.
+func SetPoolSize(poolSize int) {
+	defaultPoolSize = poolSize
 }
 
 // ListenAndServe run a bttcp server on self address

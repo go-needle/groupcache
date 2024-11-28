@@ -55,6 +55,7 @@ func startAPIServer(apiAddr string, g *Group) {
 func TestGroupCache(t *testing.T) {
 	SetHashReplicas(100)
 	SetHash(crc32.ChecksumIEEE)
+	SetPoolSize(128)
 	addrs := []string{"127.0.0.1:8001"}
 	g := createGroup()
 	startCacheServer(addrs[0], addrs, g)
