@@ -2,6 +2,7 @@ package groupcache
 
 import (
 	"fmt"
+	"hash/crc32"
 	"log"
 	"net/http"
 	"testing"
@@ -52,6 +53,8 @@ func startAPIServer(apiAddr string, g *Group) {
 
 // go mod tidy
 func TestGroupCache(t *testing.T) {
+	SetHashReplicas(100)
+	SetHash(crc32.ChecksumIEEE)
 	addrs := []string{"127.0.0.1:8001"}
 	g := createGroup()
 	startCacheServer(addrs[0], addrs, g)

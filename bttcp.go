@@ -7,14 +7,16 @@ import (
 	"github.com/go-needle/groupcache/consistenthash"
 	pb "github.com/go-needle/groupcache/groupcachepb"
 	"google.golang.org/protobuf/proto"
+	"hash/crc32"
 	"log"
 	"strconv"
 	"strings"
 	"sync"
 )
 
-const (
+var (
 	defaultReplicas = 50
+	defaultHash     = crc32.ChecksumIEEE
 )
 
 // BttcpPicker implements PeerPicker for a pool of bttcp peers.
@@ -55,12 +57,20 @@ func (p *BttcpPicker) PickPeer(key string) (PeerGetter, bool) {
 func (p *BttcpPicker) Set(peers ...string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	p.peers = consistenthash.New(defaultReplicas, nil)
+	p.peers = consistenthash.New(defaultReplicas, defaultHash)
 	p.peers.Add(peers...)
 	p.bttcpGetters = make(map[string]*bttcpGetter, len(peers))
 	for _, peer := range peers {
 		p.bttcpGetters[peer] = &bttcpGetter{baseURL: peer, client: bttcp.NewClient(peer, 1024, false)}
 	}
+}
+
+func SetHashReplicas(replicas int) {
+	defaultReplicas = replicas
+}
+
+func SetHash(fn consistenthash.Hash) {
+	defaultHash = fn
 }
 
 // ListenAndServe run a bttcp server on self address
